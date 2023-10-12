@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import useFetch from 'use-http';
-
+import blockedcontent from'./blockedcontent.jpg';
 function App() {
   return (
     <div className="App">
@@ -20,6 +20,7 @@ function Todos() {
   const [img, setImg] = useState<string>()
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [imageNames, setImageNames] = useState([])
+  const [hide, setHide] = useState(false)
   const [selectedImage, setSelectedImage ] = useState('Beach.jpg');
   const { get, response , loading } = useFetch('https://sfbo2hwf68.execute-api.us-east-2.amazonaws.com')
   
@@ -32,6 +33,8 @@ function Todos() {
       setLabels(result['Labels'])
       setImg("data:image/jpg;base64, " + result.img)
       const moderationLabelResult = removeDuplicates(result.moderationLabels.map((item: any) => item.Name))
+      const hideResult = moderationLabelResult.length != 0;
+      setHide(hideResult);
       setModerationLabels(moderationLabelResult)
       setImageNames(imageNameResult)
     }
@@ -50,7 +53,8 @@ function Todos() {
       {isLoading && 'Loading...'}
       {!isLoading && 
         <>
-          <img src={img} width={500} height={350}/>
+          {(moderationLabels.length ==0 || !hide) && <img src={img} width={500} height={350}/>}
+          {moderationLabels.length !=0 && hide && <img src={blockedcontent} width={500} height={350}/>} 
           <br/>
           {'AWS Rekognition finds these (labels) in the image:'}
           {labels.map((item: any) => (
@@ -60,6 +64,7 @@ function Todos() {
           {moderationLabels.map((item: any) => (
             <div key={item} style={{color: "red"}}>{item}</div>
           ))}
+          {moderationLabels.length !=0 &&   <button type="button" onClick={()=>setHide(!hide)}>{hide ? "Click to show" : "Click to hide"} </button>}
         </>
       }
     </>
