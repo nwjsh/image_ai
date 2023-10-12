@@ -54,7 +54,7 @@ function Todos() {
           <br/>
           {'AWS Rekognition finds these (labels) in the image:'}
           {labels.map((item: any) => (
-            <div key={item.Name}>{item.Name}</div>
+            <div key={item.Name}>{`${item.Name} (likelihood:${item.Confidence.toString().substring(0, 5)}%)`}</div>
           ))}
           {moderationLabels.length !=0 && <p style={{color: "red"}}>Inappropriate image found! Inappropriate content:</p>}
           {moderationLabels.map((item: any) => (
