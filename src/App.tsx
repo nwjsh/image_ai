@@ -19,18 +19,22 @@ function Todos() {
   const [moderationLabels, setModerationLabels] = useState([])
   const [img, setImg] = useState<string>()
   const [isLoading, setIsLoading] = useState<boolean>(true)
+  const [imageNames, setImageNames] = useState([])
   const [selectedImage, setSelectedImage ] = useState('Beach.jpg');
   const { get, response , loading } = useFetch('https://sfbo2hwf68.execute-api.us-east-2.amazonaws.com')
   
   async function initializeLabels(imageName: string) {
     setIsLoading(true);
     const result = await get('/test/labels?imagename='+imageName)
+    const imageNameResult = await get('/test/imagenames')
     if (response.ok) 
     {
+      setModerationLabels([])
       setLabels(result['Labels'])
       setImg("data:image/jpg;base64, " + result.img)
       const moderationLabelResult = removeDuplicates(result.moderationLabels.map((item: any) => item.Name))
       setModerationLabels(moderationLabelResult)
+      setImageNames(imageNameResult)
     }
     setIsLoading(false);
   }
@@ -39,26 +43,26 @@ function Todos() {
     <>
       <label>Choose an image:</label>
       <select  value={selectedImage} onChange={(e)=>{setSelectedImage(e.target.value)}}>
-        <option value="Beach.jpg">Beach</option>
-        <option value="Bird 1.jpg">Bird 1</option>
-        <option value="Aspen Trees.jpg">Aspen Trees</option>
-        <option value="Cat 2.jpg">Cat 2</option>
-        <option value="roulette.jfif">roulette</option>
+        {imageNames.map((imageName: any) => (
+           <option key={imageName.file_name} value={imageName.full_name}>{imageName.file_name}</option>
+        ))}
       </select>
       <br/>
       {isLoading && 'Loading...'}
-      {!isLoading && <img src={img} width={500} height={350}/>}
-      <br/>
-      {!isLoading && 'AWS Rekognition finds these (labels) in the image:'}
-      {!isLoading && labels.map((item: any) => (
-        <div key={item.Name}>{item.Name}</div>
-      ))}
-      <>
-      {moderationLabels.length !=0 && <p style={{color: "red"}}>Inappropriate image found! Inappropriate content:</p>}
-      {moderationLabels.map((item: any) => (
-        <div key={item} style={{color: "red"}}>{item}</div>
-      ))}
-    </>
+      {!isLoading && 
+        <>
+          <img src={img} width={500} height={350}/>
+          <br/>
+          {'AWS Rekognition finds these (labels) in the image:'}
+          {labels.map((item: any) => (
+            <div key={item.Name}>{item.Name}</div>
+          ))}
+          {moderationLabels.length !=0 && <p style={{color: "red"}}>Inappropriate image found! Inappropriate content:</p>}
+          {moderationLabels.map((item: any) => (
+            <div key={item} style={{color: "red"}}>{item}</div>
+          ))}
+        </>
+      }
     </>
   )
 }
