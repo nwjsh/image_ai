@@ -27,9 +27,8 @@ function Todos() {
     setIsLoading(true);
     const result = await get('/test/labels?imagename='+imageName)
     const imageNameResult = await get('/test/imagenames')
-    if (response.ok) 
+    if (response.ok && result && imageNameResult) 
     {
-      setModerationLabels([])
       setLabels(result['Labels'])
       setImg("data:image/jpg;base64, " + result.img)
       const moderationLabelResult = removeDuplicates(result.moderationLabels.map((item: any) => item.Name))
