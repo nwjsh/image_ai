@@ -47,7 +47,7 @@ function Todos() {
       </select>
       <br/>
       {isLoading && 'Loading...'}
-      {!isLoading && <img src={img} />}
+      {!isLoading && <img src={img} width={500} height={350}/>}
       <br/>
       {!isLoading && 'AWS Rekognition finds these (labels) in the image:'}
       {!isLoading && labels.map((item: any) => (
