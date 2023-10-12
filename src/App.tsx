@@ -16,6 +16,7 @@ function Todos() {
   // the last argument below [] means it will fire onMount (GET by default)
   //const { loading, error, data = [] } = useFetch('https://sfbo2hwf68.execute-api.us-east-2.amazonaws.com/test/labels?imagename=Beach.jpg', options, [])
   const [labels, setLabels] = useState([])
+  const [moderationLabels, setModerationLabels] = useState([])
   const [img, setImg] = useState<string>()
   const [isLoading, setIsLoading] = useState<boolean>(true)
   const [selectedImage, setSelectedImage ] = useState('Beach.jpg');
@@ -23,11 +24,13 @@ function Todos() {
   
   async function initializeLabels(imageName: string) {
     setIsLoading(true);
-    const initialTodos = await get('/test/labels?imagename='+imageName)
+    const result = await get('/test/labels?imagename='+imageName)
     if (response.ok) 
     {
-      setLabels(initialTodos['Labels'])
-      setImg("data:image/jpg;base64, " + initialTodos.img)
+      setLabels(result['Labels'])
+      setImg("data:image/jpg;base64, " + result.img)
+      const moderationLabelResult = removeDuplicates(result.moderationLabels.map((item: any) => item.Name))
+      setModerationLabels(moderationLabelResult)
     }
     setIsLoading(false);
   }
@@ -40,18 +43,28 @@ function Todos() {
         <option value="Bird 1.jpg">Bird 1</option>
         <option value="Aspen Trees.jpg">Aspen Trees</option>
         <option value="Cat 2.jpg">Cat 2</option>
+        <option value="roulette.jfif">roulette</option>
       </select>
       <br/>
       {isLoading && 'Loading...'}
       {!isLoading && <img src={img} />}
       <br/>
       {!isLoading && 'AWS Rekognition finds these (labels) in the image:'}
-      {!isLoading && labels.map((todo: any) => (
-        <div key={todo.Name}>{todo.Name}</div>
+      {!isLoading && labels.map((item: any) => (
+        <div key={item.Name}>{item.Name}</div>
       ))}
-      
+      <>
+      {moderationLabels.length !=0 && <p style={{color: "red"}}>Inappropriate image found! Inappropriate content:</p>}
+      {moderationLabels.map((item: any) => (
+        <div key={item} style={{color: "red"}}>{item}</div>
+      ))}
+    </>
     </>
   )
 }
 
+function removeDuplicates(arr: []) {
+  return arr.filter((item,
+      index) => arr.indexOf(item) === index);
+}
 export default App;
