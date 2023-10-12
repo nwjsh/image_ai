@@ -45,7 +45,7 @@ function Todos() {
       {isLoading && 'Loading...'}
       {!isLoading && <img src={img} />}
       <br/>
-      {!isLoading && 'Labels of the image:'}
+      {!isLoading && 'AWS Rekognition finds these (labels) in the image:'}
       {!isLoading && labels.map((todo: any) => (
         <div key={todo.Name}>{todo.Name}</div>
       ))}
